@@ -47,7 +47,7 @@ def main():
             # check for collision with shots, kill both objects
             for shot in shots:
                 if asteroid.checkCollision(shot):
-                    asteroid.kill()
+                    asteroid.split()
                     shot.kill()
 
         pygame.display.flip()  # always call this last
