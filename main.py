@@ -4,6 +4,7 @@ from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
 from shot import Shot
+from hud import Hud
 
 
 def main():
@@ -20,11 +21,13 @@ def main():
     shots = pygame.sprite.Group()
 
     # set groups as containers for object classes
+    Hud.containers = (updatable, drawable)
     Player.containers = (updatable, drawable)
     Asteroid.containers = (updatable, drawable, asteroids)
     AsteroidField.containers = (updatable)
     Shot.containers = (updatable, drawable, shots)
 
+    hud = Hud()
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     asteroid_field = AsteroidField()
     while (True):
@@ -47,8 +50,12 @@ def main():
             # check for collision with shots, kill both objects
             for shot in shots:
                 if asteroid.checkCollision(shot):
+                    hud.score += 100
                     asteroid.split()
                     shot.kill()
+
+        hud.update(dt)
+        hud.draw(screen)
 
         pygame.display.flip()  # always call this last
         dt = clock.tick(60) / 1000
