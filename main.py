@@ -11,6 +11,7 @@ def main():
     pygame.init()
     clock = pygame.time.Clock()
     dt = 0
+    flag_paused = False
     print("Starting Asteroids!")
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -35,6 +36,11 @@ def main():
             if event.type == pygame.QUIT:
                 return
 
+        keys = pygame.key.get_just_pressed()
+
+        if keys[pygame.K_ESCAPE]:
+            flag_paused = False if flag_paused else True
+
         updatable.update(dt)
 
         screen.fill("black")
@@ -57,8 +63,14 @@ def main():
         hud.update(dt)
         hud.draw(screen)
 
-        pygame.display.flip()  # always call this last
         dt = clock.tick(60) / 1000
+
+        # check for pause
+        if flag_paused:
+            dt = 0
+            hud.pause_screen(screen)
+
+        pygame.display.flip()  # always call this last
 
 
 if __name__ == "__main__":
