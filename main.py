@@ -12,6 +12,7 @@ def main():
     clock = pygame.time.Clock()
     dt = 0
     flag_paused = False
+    flag_dead = False
     print("Starting Asteroids!")
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -38,37 +39,39 @@ def main():
 
         keys = pygame.key.get_just_pressed()
 
+        # flip the pause flag when ESC is pressed
         if keys[pygame.K_ESCAPE]:
-            flag_paused = False if flag_paused else True
+            flag_paused = not flag_paused
 
-        updatable.update(dt)
+        if flag_dead:
+            # TODO: add death animation
+            screen.fill("black")
+            hud.death_screen(screen)
+        elif flag_paused:
+            hud.pause_screen(screen)
+        else:
+            updatable.update(dt)
 
-        screen.fill("black")
+            screen.fill("black")
 
-        for obj in drawable:
-            obj.draw(screen)
+            for obj in drawable:
+                obj.draw(screen)
 
-        # if player collides with an asteroid, end the game
-        for asteroid in asteroids:
-            if asteroid.checkCollision(player):
-                print("Game Over")
-                return
-            # check for collision with shots, kill both objects
-            for shot in shots:
-                if asteroid.checkCollision(shot):
-                    hud.score += 100
-                    asteroid.split()
-                    shot.kill()
+            # if player collides with an asteroid, end the game
+            for asteroid in asteroids:
+                if asteroid.checkCollision(player):
+                    flag_dead = True
+                # check for collision with shots, kill both objects
+                for shot in shots:
+                    if asteroid.checkCollision(shot):
+                        hud.score += asteroid.radius * 2
+                        asteroid.split()
+                        shot.kill()
 
-        hud.update(dt)
-        hud.draw(screen)
+            hud.update(dt)
+            hud.draw(screen)
 
         dt = clock.tick(60) / 1000
-
-        # check for pause
-        if flag_paused:
-            dt = 0
-            hud.pause_screen(screen)
 
         pygame.display.flip()  # always call this last
 
